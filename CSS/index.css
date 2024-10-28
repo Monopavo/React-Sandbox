@@ -1,0 +1,57 @@
+    /* Root / Universal */
+
+*,
+*::before,
+*::after {
+    margin: 0 auto;
+    padding: 0;
+    color: var(--text-color);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+    /* Element Tags */ 
+
+a {
+    text-decoration: none;
+}
+
+body {
+    background-color: hsl(210, 20%, 50%);
+}
+
+details {
+    padding: 1em;
+}
+
+h1, summary {
+    text-decoration: underline overline double hsl(200, 60%, 75%);
+}
+
+header {
+    border: 1em hsl(0, 0%, 80%) double;
+    background: linear-gradient(slategrey, lightslategray);
+    text-align: center;
+    margin: 0.2em;
+    padding: 1em;
+  }
+
+html {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+}
+
+    /* Classes */
+
+.content-frame {
+    border: 1em hsl(0, 0%, 80%) double;
+    height: 90vh;
+}
+
+.link-box {
+    background-color: lightslategray;
+    border: 0.4em double hsl(0, 0%, 80%);
+    outline: 0.1em dashed hsl(0, 0%, 80%);
+    margin: 0.4em auto;
+    padding: 0.2em;
+}
