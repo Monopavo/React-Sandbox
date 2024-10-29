@@ -1,3 +1,12 @@
+## Overview
+
+----- React is a library that focuses on responsive, dynamic UIs. ReactDOM is often bundled in with it, however it's a separate library that handles DOM access and manipulation, allowing for React to be integrated into HTML.
+
+----- React is a composable and declarative library; "composable" in that it deals with smaller components that are arranged to produce a larger project, and "declarative in that it ...
+
+
+
+
 ## Project Installation
 
 ----- There are multiple ways to include React into a project...
@@ -43,7 +52,10 @@ import { createRoot } from 'react-dom/client';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
-root.render(<App />);
+root.render(
+    <React.StrictMode>
+	<App />)
+    </React.StrictMode>;
 ```
 
 ----- This should render the words "Hello, React!", which are encapsulated by a <h1> element; this forms a component. The argument of "root.render()" is the component(s) to be rendered.
@@ -67,6 +79,14 @@ import { useState, useEffect } from "react";
 import { createRoot } from 'react-dom/client';
 ```
 
+----- However, in order to use "<React.StrictMode>", the entirety of React must be imported...
+
+```JSX
+import React from "react";
+import { createRoot } from 'react-dom/client';
+```
+
+
 
 
 
@@ -79,24 +99,37 @@ import { createRoot } from 'react-dom/client';
 
 ----- The typical structure of a React project goes like this...
 
-index.html, where main.tsx / main.tsx accesses a single <div id = "root"></div> element.
-^
-main.tsx / main.jsx, where "App.tsx" / "App.jsx" is imported as the sole module and rendered.
-^
-App.tsx / App.jsx, where the Components are imported as modules and arranged in a DOM hierarchy.  
-^
-Components, defined in their individual .tsx / .jsx files and exported as modules.
+#1) index.html /// main.tsx accesses a single <div id = "root"></div> element.
+
+#2) main.tsx /// "App.tsx", "React", and "createRoot" are imported. The App is rendered here.
+
+#3) App.tsx /// Components are imported as modules and composed in a DOM hierarchy similar to HTML.  
+
+#4) Components /// Defined within their own files, and their own ".module.css" files are imported for styling. Components are exported as modules.
+
+#5) CSS Modules /// Defined within their own ".module.css" files and exported to their paired, unique components.
+
+
+
+
+
 
 #### TypeScript Boilerplate
 
 ```Typescript
 //main.tsx//
-import { createRoot } from "react-dom/client";
-import App from "./App";
+import React from "react";
+import { createRoot } from 'react-dom/client';
+import App from './App';
 
-const container = document.getElementById("root");
+const container = document.getElementById('root');
 const root = createRoot(container!);
-root.render(<App />);
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 ```
 
 ```Typescript
@@ -107,7 +140,9 @@ import Component from "path./to/component";
 
 const App: React.FC = () => {
   return (
-    <Component value="Hello!" />
+    <React.StrictMode>
+        <Component value="Hello!" />
+    </React.StrictMode>
   );
 };
 
@@ -128,6 +163,32 @@ const ComponentNameHere : React.FC <ComponentProps>= ({value}) => {
 export { ComponentNameHere as Component };
 ```
 
+#### React.StrictMode ####
+
+----- "React.StrictMode" is a built-in component designed to help write better React code. By wrapping parts of the application in <StrictMode> and </React.StrictMode>, React will run additional checks and provide warnings about potential problems in the code. This includes...
+
+// Components with unsafe lifecycle methods.
+// Deprecated APIs.
+// Unexpected side effects.
+// Sections that need updating.
+
+----- <React.StrictMode> is a very powerful component and tool that has no performance concerns on the finished build, encapsulating the traditional <div> for the composition of the App and its rendering.
+
+----- <React.StrictMode> can also be used in the definition of a component; combined with TypeScript. This ensures absolute safety at the cost of increased complexity, so it isn't recommended except in the largest projects...
+
+const Box: React.FC<BoxProps> = ({ value }) => {
+    return(
+        <React.StrictMode>
+            <div>This is my box component!</div>
+        </React.StrictMode>
+    );
+};
+
+----- As such, it's always recommended to use <React.StrictMode> in the "App" and "main" files. Note that <React.StricMode> requires React to be imported in its entirety within both "App" and "main"...
+
+```JSX
+import React from "react";
+```
 
 
 
@@ -160,7 +221,7 @@ class MyComponent extends React.Component {
 
 ```typescript
 // Arrow function component
-const MyComponent: React.FC <MyComponentProps> = ({propname1}, {propname2, etc...}) => <div>This is a component!</div>;
+const MyComponent: React.FC <MyComponentProps> = ({propname1}, {propname2, etc...}) =><div>This is a component!</div>;
 
 // Function literal component
 function MyComponent(): React.FC {
@@ -204,7 +265,9 @@ const MyComponent: React.FC <MyComponentProps> = ({value}) => <div>{value}</div>
 ```JSX
 const App: React.FC = () => {
   return (
-      <Square value="X"/>
+      <React.StrictMode>
+          <Square value="X"/>
+      </React.StrictMode>
   );
 };
 ```
@@ -244,7 +307,71 @@ export { MyComponent as Box }; // Assigns 'Box' as an alias.
 
 #### Styling
 
-?????
+----- Outside of libraries such as Tailwind, React components are typically styled with a core "style.css" script for unified styles and multiple "CSS modules".
+ 
+----- Using CSS modules is considered a best practice as the scope of the style is entirely centered around an individual component, which helps separate the concerns between components and the DOM as well as allow for easy adjustments without worrying too much about style specificity. 
+
+----- CSS Modules are defined with ".module.css" instead of ".css", and are exported. They are typically named after their component type with "Style" at the end, and use camelCase. For example...
+
+
+```CSS
+// filename is "paragraphStyles.module.css" //
+
+.color {
+    color: whitesmoke;
+    background-color: grey;
+}
+
+.size {
+    height: 50vh;
+    width: 75vh;
+}
+```
+
+----- Note that an export statement isn't needed for CSS Modules; it's emplicitly exported due to its nature as a ".module.css". The module is then imported into a component, with its style(s) being defined as attributes within the React elements. If using multiple class styles within the same module, a template literal is used with space separators between each style...  
+
+
+```TypeScript
+import paragraphStyles from "path/to/the/style.module.css";
+
+interface ParagraphProp {
+    value: string;
+};
+
+const Paragraph: React.FC<ParagraphProp> = ({value}) => {
+    return <p className={`${paragraphStyles.color} ${paragraphStyles.size}`}>{value}</p>;
+};   
+
+export default Paragraph;
+```
+
+----- ... and then when it is composed in the App, the "className" attribute isn't needed as it has already been defined at the same time as the component, making it an innate style of the component...
+
+```Typescript
+const App: React.FC = () => {
+  return (
+      <React.StrictMode>
+          <Paragraph value="This is my first paragraph... />
+          <Paragraph value="This is my second... />
+          <Paragraph value="And my third! />
+      </React.StrictMode>
+  );
+};
+
+export default App;
+```
+
+----- And it is finally rendered in the "main.tsx" file...
+
+```Typescript
+root.render(
+    <React.StrictMode>
+        <App />
+    </React.StrictMode);
+```
+
+
+
 
 
 
