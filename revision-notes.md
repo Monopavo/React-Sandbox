@@ -2,7 +2,50 @@
 
 ----- React is a library that focuses on responsive, dynamic UIs. ReactDOM is often bundled in with it, however it's a separate library that handles DOM access and manipulation, allowing for React to be integrated into HTML.
 
------ React is a composable and declarative library; "composable" in that it deals with smaller components that are arranged to produce a larger project, and "declarative in that it ...
+----- React is a composable and declarative library; "composable" in that it deals with smaller components that are arranged to produce a larger project, and "declarative" in that it provides a way to describe the UI in terms of its current state. This is completely opposite to JavaScript's imperative style, where you have to explicitly define each step needed to achieve a certain state. 
+
+----- In React, you declare what the UI should look like for a given state, and React handles the rest. It’s about telling React what to achieve, not how to achieve it.
+
+
+
+
+
+## JSX / TSX
+
+----- JSX or TSX ("JavaScript XML" or "TypeScript XML") is used to write HTML within JavaScript, removing the need to type directly within a .html file. It's a proprietary language of React, and is mainly used within the definition of components and the composition of the DOM hierarchy within the "App.jsx" / "App.tsx" component before it's rendered by "main.jsx" / "main.tsx".
+
+
+----- As such, there are a couple of differences between standard HTML and JSX / TSX...
+
+* The "class" attribute is now the "className" property.
+* The "for" attribute becomes "htmlFor".
+* CamelCase is used for two-word attributes, such as "onClick" and "maxLength" instead of "onclick" and "maxlength". 
+* Self-closing tags need a closing slash, e.g., <img />.
+
+----- Effectively, JSX / TSX creates a JS / TS object representing a HTML tag, and then transpiles it into an HTML element by rendering it with ReactDOM. For example. a <h1> tag with "Hello, World!" in JSX / TSX is created with the following properties...
+
+```Typescript
+
+* type: "h1" // The type of tag, which is a <h1> in this case.
+
+* key: null, // Used to uniquely identify elements in a list, akin to the "id" element. Often set to null when not used.
+
+* ref: null, // Used to reference the DOM element or component instance for direct manipulation.
+
+* props: // "props" contains the properties / attributes of the object...
+{className: null, // ... with "className" representing classes...
+children: "Hello, World!" // ... and "children" representing any encapsulated content. 
+}, 
+
+* _owner: null, // An internal property used by React to keep track of the component's owner.
+
+* _store: {} // An internal property used by React for state management and internal bookkeeping.
+```
+
+
+
+
+
 
 
 
@@ -274,6 +317,23 @@ const App: React.FC = () => {
 
 
 
+----- With React, there are also a couple of special props that can be used to produce interesting interactions while remaining type safe...
+
+```Typescript
+interface ComponentProps {
+
+  children: React.ReactNode; // Used to allow a component to encapsulate with opening and closing tags. "React.ReactNode" is used to encapsulate other nodes, but it can also be used with other types like "string" to remove the need for direct assignment to a {value} attribute.
+
+  key: string | number; // Used to identify which items have changed, are added, or are removed. It's essential for rendering lists efficiently, as  without a key React struggles to determine what has changed. Consider it akin to an "id" tag for <li> elements.
+
+  ref: React.Ref<any>;  // Provides a way to access the DOM nodes or React elements created in the render method. Useful for managing focus, text selection, or triggering animations. The "<any>" suffix specifies that it works with any component or value.
+
+}
+
+```
+ 
+
+
 
 
 
@@ -369,6 +429,132 @@ root.render(
         <App />
     </React.StrictMode);
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+#### State Management
+
+----- "useState" must be imported with React...
+
+import React, { useState } from "react";
+
+----- ... and then the state is defined within a component's definition. For example, for a basic counter...
+
+```Typescript
+const ExampleComponent: React.FC = () => {
+  const [state, setState] = useState<number>(0);
+
+  return (
+    <div>
+      <p>State: {state}</p>
+      <button onClick={() => setState(state + 1)}>Increment</button>
+    </div>
+  );
+};
+```
+
+//OR//
+
+```Javascript
+const ExampleComponent = () => {
+    const [state, setState] = useState(0);
+
+    return (
+        <div>
+            <p>State: {state}</p>
+            <button onClick={() => setState(state + 1)}>Increment</button>
+        </div>
+    );
+};
+```
+
+----- States that are updated through event handlers, such as with the "onClick" attribute, use this simple blueprint, however if multiple states need to be updated by a single event handler then it's a best practice to create a new method with the "handle" prefix and assign it to "onClick" within the component's structure...
+
+```Javascript
+const ExampleComponent = () => {
+    const [counter, setCounter] = useState(0);
+    const [tally, setTally] = useState(0);
+
+    const handleClick = () => {
+        setCounter(counter + 1);
+	setTally(tally + "|");
+    };
+
+    return (
+        <div>
+            <p>Current Counter: {counter}</p>
+	    <p>Current Tally: {tally}</p>
+            <button onClick={handleClick}>Click This Button!</button>
+        </div>
+    );
+};
+```
+
+
+
+
+---- Basically, a state has this basic blueprint...
+
+const [SETTER, UPDATER] = useState(VALUEOFSETTER);
+
+---- ... and there can be multiple states in the same component that manage different interactions...
+
+```Javascript
+  const [greeting, setGreeting] = useState("Hello!");
+  const [counter, setCounter] = useState(0);
+  const [trueOrFalse, setTrueOrFalse] = useState(true);
+```
+
+----- With TypeScript, states don't need their own interface; they can simply be typed within their definition by using arrow brackets, setting their types implicitly. They can even handle multiple types, such as <string | number>, or predefined union types...
+
+```Typescript
+  const [greeting, setGreeting] = useState<string>("Hello!");
+  const [counter, setCounter] = useState<number>(0);
+  const [trueOrFalse, setTrueOrFalse] = useState<boolean>(true);
+```
+
+
+
+
+
+
+
+## Inherited State
+
+----- To reiterate, states are placed in isolated components, or otherwise parent components such as an "Inventory" component that holds multiple "InventorySlot" components, or a "Menu" component that holds "NewGame", "LoadGame", and "Quit" components.
+
+----- Using parent containers allows for state to be defined solely in the parent, and then passed down to its children. This greatly simplifies state for simple interactions, such as clicking to access a component. Two key steps need to happen in order to pass states to a child component:
+
+* In the parent component, the states must be set as attributes of the child components within the "return()" encapsulation.
+* The child component must have the "state" and "setState" names of each state within their props.
+
+---- For TypeScript, those inherited states must also be appropriately typed within the child component; typically within an interface. These are the required types:
+
+* stateNameHere: typeshere; // string, Boolean, etc...
+* setStateNameHere: React.Dispatch<React.SetStateAction<sametypeasstatehere>>;
+
+## useEffect
+
+----- "useEffect" is also commonly paired with "useState", and is imported in the same way...
+
+import React, { useState, useEffect } from "react";
+
+----- Anything that's encapsulated by "useEffect(), {}" is trigged once upon the component being loaded, meaning that it's best used for one-and-done state activation and events. For dynamic states, such as updating a counter, they should be defined outside of the "useEffect(), {}" expression. 
+
+----- Essentially, "useEffect" is used to trigger any functions or methods upon the component being loaded; consider "useEffect" a single initialisation, and "useState" the continuous updates.
+
+
+
+
 
 
 
