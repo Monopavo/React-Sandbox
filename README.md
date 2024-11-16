@@ -1,4 +1,4 @@
-# React-Sandbox
+# #100DaysOfCode - React Sandbox
 
 This project was created during week 2 of the [#100DaysOfCode](https://www.100daysofcode.com/) challenge. It contains links to multiple projects involving React that I have made throughout this challenge, including...
 
